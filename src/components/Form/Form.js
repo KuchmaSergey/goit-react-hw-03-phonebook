@@ -1,73 +1,69 @@
-import React, { Component } from "react";
-import shortid from "shortid";
-import styles from "./Form.module.css";
+import shortid from 'shortid';
+import { v4 as uuid4 } from 'uuid';
+import { Component } from 'react';
+import PropTypes from 'prop-types';
+import { FormGroup, Label, FormElement, Button, Input } from '../../Styles';
 
-class Form extends Component {
-  state = {
-    name: "",
-    number: "",
-  };
+const initState = {
+	name: '',
+	phone: '',
+};
 
-  nameInputId = shortid.generate();
-  numberInputId = shortid.generate();
+export class Form extends Component {
+	state = initState;
 
-  handleChange = (e) => {
-    const { name, value } = e.currentTarget;
+	onInputChange = e => {
+		const { name, value } = e.target;
+		this.setState({ [name]: value });
+	};
 
-    this.setState({ [name]: value });
-  };
+	onFormSubmit = e => {
+		e.preventDefault();
+		this.props.onFormSubmit({
+			...this.state,
+			id: uuid4(),
+		});
+		this.setState(initState);
+	};
 
-  handleSubmit = (e) => {
-    e.preventDefault();
+	render() {
+		const inputNameId = shortid.generate();
+		const inputPhoneId = shortid.generate();
 
-    this.props.onSubmit(this.state);
-
-    this.reset();
-  };
-
-  reset = () => {
-    this.setState({ name: "", number: "" });
-  };
-
-  render() {
-    return (
-      <>
-        <form className={styles.form} onSubmit={this.handleSubmit}>
-          <label className={styles.form__lable} htmlFor={this.nameInputId}>
-            Name
-          </label>
-          <input
-            className={styles.form__input}
-            value={this.state.name}
-            onChange={this.handleChange}
-            id={this.nameInputId}
-            type="text"
-            name="name"
-            pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
-            title="Имя может состоять только из букв, апострофа, тире и пробелов. Например Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan и т. п."
-            required
-          />
-          <label className={styles.form__lable} htmlFor={this.numberInputId}>
-            Number
-          </label>
-          <input
-            className={styles.form__input}
-            id={this.numberInputId}
-            value={this.state.number}
-            onChange={this.handleChange}
-            type="tel"
-            name="number"
-            pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
-            title="Номер телефона должен состоять цифр и может содержать пробелы, тире, круглые скобки и может начинаться с +"
-            required
-          />
-          <button className={styles.form__button} type="submit">
-            Add contact
-          </button>
-        </form>
-      </>
-    );
-  }
+		return (
+			<FormElement onSubmit={this.onFormSubmit}>
+				<FormGroup>
+					<Label htmlFor={inputNameId}>Name</Label>
+					<Input
+						id={inputNameId}
+						type="text"
+						name="name"
+						value={this.state.name}
+						onChange={this.onInputChange}
+						pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
+						title="Имя может состоять только из букв, апострофа, тире и пробелов. Например Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan и т. п."
+						required
+					/>
+				</FormGroup>
+				<FormGroup>
+					<Label htmlFor={inputPhoneId}>Phone</Label>
+					<Input
+						id={inputPhoneId}
+						type="tel"
+						name="phone"
+						value={this.state.phone}
+						onChange={this.onInputChange}
+						required
+					/>
+				</FormGroup>
+				<FormGroup>
+					<Button type="submit">Add contact</Button>
+				</FormGroup>
+			</FormElement>
+		);
+	}
 }
 
-export default Form;
+Form.propTypes = {
+	onFormSubmit: PropTypes.func.isRequired,
+};
